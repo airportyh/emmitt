@@ -8,7 +8,10 @@
     "chai": "~1.8.0",
     "ispy": "~0.1.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "backbone": "~1.0.0",
+    "tape": "~1.1.1"
+  },
   "scripts": {
     "test": "mocha -u tdd tests.js"
   },

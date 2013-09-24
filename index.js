@@ -1,5 +1,5 @@
 
-var data = '__emmitt__'
+var data = '__emmittdata__'
 
 function defineMessengerProp(obj){
   var value = {
@@ -15,7 +15,21 @@ function defineMessengerProp(obj){
   }
 }
 
+function registerHandler(obj, evt, callback){
+  if (!obj[data]){
+    defineMessengerProp(obj)
+  }
+  var handlers = obj[data].handlers
+  if (!handlers[evt]){
+    handlers[evt] = []
+  }
+  handlers[evt].push([callback])
+}
+
 function on(obj, evt, callback){
+
+  registerHandler(obj, evt, callback)
+
   if (isEventEmitter(obj)){
     obj.on(evt, callback)
     return
@@ -36,24 +50,68 @@ function on(obj, evt, callback){
     return
   }
 
-  if (!obj[data]){
-    defineMessengerProp(obj)
+}
+
+function unregisterHandler(obj, evt, callback){
+  var removed = {}
+  if (obj[data]){
+    var handlers = obj[data].handlers
+    if (handlers){
+      if (evt){
+        if (handlers[evt]){
+          var callbacks = handlers[evt]
+          if (callback){
+            for (var i = 0; i < callbacks.length; i++){
+              if (callbacks[i][0] === callback){
+                var rm = callbacks.splice(i, 1)[0]
+                if (!removed[evt]) removed[evt] = []
+                removed[evt].push(rm)
+                break
+              }
+            }
+          }else{
+            removed[evt] = handlers[evt]
+            handlers[evt] = []
+          }
+        }
+      }else{
+        removed = handlers
+        obj[data].handlers = {}
+      }
+    }
   }
-  var handlers = obj[data].handlers
-  if (!handlers[evt]){
-    handlers[evt] = []
-  }
-  handlers[evt].push([callback])
+  return removed
 }
 
 function off(obj, evt, callback){
+
+  var removed = unregisterHandler(obj, evt, callback)
+
   if (isEventEmitter(obj)){
-    obj.removeListener(evt, callback)
+    if (callback){
+      obj.removeListener(evt, callback)
+    }else{
+      for (var e in removed){
+        var callbacks = removed[e]
+        for (var i = 0; i < callbacks.length; i++){
+          obj.removeListener(e, callbacks[i][0])
+        }
+      }
+    }
     return
   }
 
   if (isjQuery(obj)){
-    obj.off(evt, callback)
+    if (callback){
+      obj.off(evt, callback)
+    }else{
+      for (var e in removed){
+        var callbacks = removed[e]
+        for (var i = 0; i < callbacks.length; i++){
+          obj.off(e, callbacks[i][0])
+        }
+      }
+    }
     return
   }
 
@@ -63,30 +121,38 @@ function off(obj, evt, callback){
   }
 
   if (isOldIEElement(obj)){
-    obj.detachEvent('on' + evt, callback)
+    if (callback){
+      obj.detachEvent('on' + evt, callback)
+    }
     return
   }
-
-  if (!obj[data]) return
-  var handlers = obj[data].handlers
-  if (!handlers || !handlers[evt]) return
-  var callbacks = handlers[evt]
-  for (var i = 0; i < callbacks.length; i++){
-    if (callbacks[i][0] === callback){
-      callbacks.splice(i, 1)
-      break
-    }
-  }
+  
 }
 
 function allOff(obj){
+
+  var removed = unregisterHandler(obj)
+
   if (isEventEmitter(obj)){
-    obj.removeAllListeners()
+    for (var e in removed){
+      var callbacks = removed[e]
+      for (var i = 0; i < callbacks.length; i++){
+        obj.removeListener(e, callbacks[i][0])
+      }
+    }
+    return
+  }
+  
+  if (isjQuery(obj)){
+    for (var e in removed){
+      var callbacks = removed[e]
+      for (var i = 0; i < callbacks.length; i++){
+        obj.off(e, callbacks[i][0])
+      }
+    }
     return
   }
 
-  if (!obj[data]) return
-  obj[data].handlers = {}
 }
 
 function emit(obj, evt){
@@ -134,6 +200,6 @@ var messager = module.exports = {
   trigger: emit,
   on: on,
   off: off,
-  removeListener: off
-  //clearAllListeners: allOff
+  removeListener: off,
+  clearAllListeners: allOff
 }
