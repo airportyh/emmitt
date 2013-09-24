@@ -4,42 +4,53 @@ var assert = require('chai').assert
 var EventEmitter = require('events').EventEmitter
 var BodyDouble = require('bodydouble')
 
-suite('standalone/plain object', function(){
+suite('pojo', worksWith(makeObject))
+suite('event emitter', worksWith(makeEventEmitter))
+suite('jQuery or Backbone', worksWith(makejQueryObject))
+suite('standard DOM element', worksWith(makeStandardElement))
+suite('Old IE DOM element', worksWith(makeOldIEElement))
 
-  var obj
+function worksWith(makeObject){
 
-  before(function(){
-    obj = makeObject()
-  })
+  return function(){
+    var obj
 
-  test('emit', function(){
-    var oncall = spy()
-    E.on(obj, 'call', oncall)
-    E.emit(obj, 'call')
-    assert(oncall.called, 'how come you didnt call?')
-  })
+    before(function(){
+      obj = makeObject
+    })
 
-  test('removeListener', function(){
-    var oncall = spy()
-    E.on(obj, 'call', oncall)
-    E.removeListener(obj, 'call', oncall)
-    E.emit(obj, 'call')
-    assert(!oncall.called, 'shouldnt have called')
-  })
+    test('emit', function(){
+      var oncall = spy()
+      E.on(obj, 'call', oncall)
+      E.emit(obj, 'call', 1)
+      assert(oncall.called, 'how come you didnt call?')
+      assert.equal(oncall.callCount, 1)
+      assert.deepEqual(oncall.lastCall.args, [1])
+    })
 
-  test.skip('removeAllListeners', function(){
-    var oncall = spy()
-    E.on(obj, 'call', oncall)
-    E.on(obj, 'foo', oncall)
-    E.on(obj, 'bar', oncall)
-    E.removeAllListeners(obj)
-    E.emit(obj, 'call')
-    E.emit(obj, 'foo')
-    E.emit(obj, 'bar')
-    assert(!oncall.called, 'shouldnt have called')
-  })
+    test('removeListener', function(){
+      var oncall = spy()
+      E.on(obj, 'call', oncall)
+      E.removeListener(obj, 'call', oncall)
+      E.emit(obj, 'call')
+      assert(!oncall.called, 'shouldnt have called')
+    })
 
-})
+    test.skip('removeAllListeners', function(){
+      var oncall = spy()
+      E.on(obj, 'call', oncall)
+      E.on(obj, 'foo', oncall)
+      E.on(obj, 'bar', oncall)
+      E.removeAllListeners(obj)
+      E.emit(obj, 'call')
+      E.emit(obj, 'foo')
+      E.emit(obj, 'bar')
+      assert(!oncall.called, 'shouldnt have called')
+    })
+
+  }
+
+}
 
 suite('event emitter', function(){
 
@@ -125,6 +136,29 @@ suite('DOM elements', function(){
 
 })
 
+suite('Old IE DOM Elements', function(){
+
+  var elm
+
+  before(function(){
+    elm = makeOldIEElement()
+  })
+
+  test('defers to attachEvent', function(){
+    var oncall = function(){}
+    E.on(elm, 'click', oncall)
+    assert(elm.attachEvent.called, 'should have called')
+    assert.deepEqual(elm.attachEvent.lastCall.args, ['onclick', oncall])
+  })
+
+  test('defers to detachEvent', function(){
+    var oncall = function(){}
+    E.off(elm, 'click', oncall)
+    assert(elm.detachEvent.called, 'should have called')
+    assert.deepEqual(elm.detachEvent.lastCall.args, ['onclick', oncall])
+  })
+})
+
 test('aliases', function(){
   assert.equal(E.emit, E.trigger)
   assert.equal(E.off, E.removeListener)
@@ -167,11 +201,23 @@ function makejQueryObject(){
 function makeStandardElement(){
   var elm = {}
 
-  // A fake DOM element. These are the 3 things we care about
-  elm.nodeType = 1
+  // A fake DOM element. These are 2 methods we care about
+  
   // addEventListener(evt, handler, bubbling)
   elm.addEventListener = spy()
   // removeEventListener(evt, handler, bubbling)
   elm.removeEventListener = spy()
+  return elm
+}
+
+function makeOldIEElement(){
+  var elm = {}
+
+  // A fake DOM element on older IEs. We care about 2 methods
+
+  // attachEvent(event, handler)
+  elm.attachEvent = spy()
+  // detachEvent(event, handler)
+  elm.detachEvent = spy()
   return elm
 }

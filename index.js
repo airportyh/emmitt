@@ -31,6 +31,11 @@ function on(obj, evt, callback){
     return
   }
 
+  if (isOldIEElement(obj)){
+    obj.attachEvent('on' + evt, callback)
+    return
+  }
+
   if (!obj[data]){
     defineMessengerProp(obj)
   }
@@ -54,6 +59,12 @@ function off(obj, evt, callback){
 
   if (isStandardElement(obj)){
     obj.removeEventListener(evt, callback, false)
+    return
+  }
+
+  if (isOldIEElement(obj)){
+    obj.detachEvent('on' + evt, callback)
+    return
   }
 
   if (!obj[data]) return
@@ -112,6 +123,10 @@ function isjQuery(obj){
 
 function isStandardElement(obj){
   return obj.addEventListener && obj.removeEventListener
+}
+
+function isOldIEElement(obj){
+  return obj.attachEvent && obj.detachEvent
 }
 
 var messager = module.exports = {
