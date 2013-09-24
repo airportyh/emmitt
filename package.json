@@ -1,7 +1,7 @@
 {
   "name": "emmitt",
   "version": "0.0.0",
-  "description": "Event emmiter for any object.",
+  "description": "Event emmiter for everything.",
   "main": "index.js",
   "dependencies": {
     "bodydouble": "~0.1.2",
