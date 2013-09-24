@@ -26,6 +26,11 @@ function on(obj, evt, callback){
     return
   }
 
+  if (isStandardElement(obj)){
+    obj.addEventListener(evt, callback, false)
+    return
+  }
+
   if (!obj[data]){
     defineMessengerProp(obj)
   }
@@ -45,6 +50,10 @@ function off(obj, evt, callback){
   if (isjQuery(obj)){
     obj.off(evt, callback)
     return
+  }
+
+  if (isStandardElement(obj)){
+    obj.removeEventListener(evt, callback, false)
   }
 
   if (!obj[data]) return
@@ -99,6 +108,10 @@ function isEventEmitter(obj){
 
 function isjQuery(obj){
   return obj.on && obj.off && obj.trigger
+}
+
+function isStandardElement(obj){
+  return obj.addEventListener && obj.removeEventListener
 }
 
 var messager = module.exports = {

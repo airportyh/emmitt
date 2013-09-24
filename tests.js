@@ -6,8 +6,13 @@ var BodyDouble = require('bodydouble')
 
 suite('standalone/plain object', function(){
 
+  var obj
+
+  before(function(){
+    obj = makeObject()
+  })
+
   test('emit', function(){
-    var obj = {}
     var oncall = spy()
     E.on(obj, 'call', oncall)
     E.emit(obj, 'call')
@@ -15,7 +20,6 @@ suite('standalone/plain object', function(){
   })
 
   test('removeListener', function(){
-    var obj = {}
     var oncall = spy()
     E.on(obj, 'call', oncall)
     E.removeListener(obj, 'call', oncall)
@@ -24,7 +28,6 @@ suite('standalone/plain object', function(){
   })
 
   test.skip('removeAllListeners', function(){
-    var obj = {}
     var oncall = spy()
     E.on(obj, 'call', oncall)
     E.on(obj, 'foo', oncall)
@@ -43,17 +46,7 @@ suite('event emitter', function(){
   var obj
 
   before(function(){
-    obj = {}
-
-    // The Event Emitter Interface
-    // not the full api, we just care about 3 methods
-
-    // on(event, listener)
-    obj.on = spy()
-    // removeListener(event, listener)
-    obj.removeListener = spy()
-    // emit(event, [arg1], [arg2], [...])
-    obj.emit = spy()
+    obj = makeEventEmitter()
   })
 
   test('defers on to event emitter', function(){
@@ -83,17 +76,7 @@ suite('jQuery or Backbone', function(){
   var obj
 
   before(function(){
-    obj = {}
-
-    // The event api from jQuery and Backbone
-    // not the full api, we just care about 3 methods
-
-    // .on(event, callback)
-    obj.on = spy()
-    // .off(event, callback)
-    obj.off = spy()
-    // .trigger(event, [*args])
-    obj.trigger = spy()
+    obj = makejQueryObject()
   })
 
   test('defers to on', function(){
@@ -118,7 +101,77 @@ suite('jQuery or Backbone', function(){
 
 })
 
+suite('DOM elements', function(){
+
+  var elm
+
+  before(function(){
+    elm = makeStandardElement()
+  })
+
+  test('defers to addEventListener', function(){
+    var oncall = function(){}
+    E.on(elm, 'click', oncall)
+    assert(elm.addEventListener.called, 'should have called')
+    assert.deepEqual(elm.addEventListener.lastCall.args, ['click', oncall, false])
+  })
+
+  test('defers to removeEventListener', function(){
+    var oncall = function(){}
+    E.off(elm, 'click', oncall)
+    assert(elm.removeEventListener.called, 'should have called')
+    assert.deepEqual(elm.removeEventListener.lastCall.args, ['click', oncall, false])
+  })
+
+})
+
 test('aliases', function(){
   assert.equal(E.emit, E.trigger)
   assert.equal(E.off, E.removeListener)
 })
+
+function makeObject(){
+  return {}
+}
+
+function makeEventEmitter(){
+  var obj = {}
+
+  // The Event Emitter Interface
+  // not the full api, we just care about 3 methods
+
+  // on(event, listener)
+  obj.on = spy()
+  // removeListener(event, listener)
+  obj.removeListener = spy()
+  // emit(event, [arg1], [arg2], [...])
+  obj.emit = spy()
+  return obj
+}
+
+function makejQueryObject(){
+  var obj = {}
+
+  // The event api from jQuery and Backbone
+  // not the full api, we just care about 3 methods
+
+  // .on(event, callback)
+  obj.on = spy()
+  // .off(event, callback)
+  obj.off = spy()
+  // .trigger(event, [*args])
+  obj.trigger = spy()
+  return obj
+}
+
+function makeStandardElement(){
+  var elm = {}
+
+  // A fake DOM element. These are the 3 things we care about
+  elm.nodeType = 1
+  // addEventListener(evt, handler, bubbling)
+  elm.addEventListener = spy()
+  // removeEventListener(evt, handler, bubbling)
+  elm.removeEventListener = spy()
+  return elm
+}
