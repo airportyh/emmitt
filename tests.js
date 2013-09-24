@@ -19,10 +19,10 @@ function worksWith(Object){
       var obj = new Object()
       var oncall = spy()
       E.on(obj, 'call', oncall)
-      E.emit(obj, 'call', 1)
+      E.emit(obj, 'call', 1, 'hello')
       t.assert(oncall.called, 'how come you didnt call?')
       t.equal(oncall.callCount, 1)
-      t.deepEqual(oncall.lastCall.args, [1])
+      t.deepEqual(oncall.lastCall.args, [1, 'hello'])
       t.end()
     })
 

@@ -13,3 +13,4 @@ launchers:
 launch_in_dev:
 - chrome
 - node
+- phantomjs

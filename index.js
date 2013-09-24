@@ -23,7 +23,7 @@ function registerHandler(obj, evt, callback){
   if (!handlers[evt]){
     handlers[evt] = []
   }
-  handlers[evt].push([callback])
+  handlers[evt].push(callback)
 }
 
 function on(obj, evt, callback){
@@ -52,7 +52,7 @@ function on(obj, evt, callback){
 
 }
 
-function unregisterHandler(obj, evt, callback){
+function unregisterHandlers(obj, evt, callback){
   var removed = {}
   if (obj[data]){
     var handlers = obj[data].handlers
@@ -62,7 +62,7 @@ function unregisterHandler(obj, evt, callback){
           var callbacks = handlers[evt]
           if (callback){
             for (var i = 0; i < callbacks.length; i++){
-              if (callbacks[i][0] === callback){
+              if (callbacks[i] === callback){
                 var rm = callbacks.splice(i, 1)[0]
                 if (!removed[evt]) removed[evt] = []
                 removed[evt].push(rm)
@@ -85,7 +85,7 @@ function unregisterHandler(obj, evt, callback){
 
 function off(obj, evt, callback){
 
-  var removed = unregisterHandler(obj, evt, callback)
+  var removed = unregisterHandlers(obj, evt, callback)
 
   if (isEventEmitter(obj)){
     if (callback){
@@ -94,7 +94,7 @@ function off(obj, evt, callback){
       for (var e in removed){
         var callbacks = removed[e]
         for (var i = 0; i < callbacks.length; i++){
-          obj.removeListener(e, callbacks[i][0])
+          obj.removeListener(e, callbacks[i])
         }
       }
     }
@@ -108,7 +108,7 @@ function off(obj, evt, callback){
       for (var e in removed){
         var callbacks = removed[e]
         for (var i = 0; i < callbacks.length; i++){
-          obj.off(e, callbacks[i][0])
+          obj.off(e, callbacks[i])
         }
       }
     }
@@ -131,13 +131,13 @@ function off(obj, evt, callback){
 
 function allOff(obj){
 
-  var removed = unregisterHandler(obj)
+  var removed = unregisterHandlers(obj)
 
   if (isEventEmitter(obj)){
     for (var e in removed){
       var callbacks = removed[e]
       for (var i = 0; i < callbacks.length; i++){
-        obj.removeListener(e, callbacks[i][0])
+        obj.removeListener(e, callbacks[i])
       }
     }
     return
@@ -147,7 +147,7 @@ function allOff(obj){
     for (var e in removed){
       var callbacks = removed[e]
       for (var i = 0; i < callbacks.length; i++){
-        obj.off(e, callbacks[i][0])
+        obj.off(e, callbacks[i])
       }
     }
     return
@@ -173,8 +173,7 @@ function emit(obj, evt){
   var handlers = obj[data].handlers
   handlers = handlers[evt] || []
   for (var i = 0; i < handlers.length; i++){
-    var pair = handlers[i]
-    var callback = pair[0]
+    var callback = handlers[i]
     callback.apply(null, args)
   }
 }
@@ -195,11 +194,12 @@ function isOldIEElement(obj){
   return obj.attachEvent && obj.detachEvent
 }
 
-var messager = module.exports = {
+module.exports = {
   emit: emit,
   trigger: emit,
   on: on,
   off: off,
   removeListener: off,
+  allOff: allOff,
   clearAllListeners: allOff
 }
