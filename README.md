@@ -19,7 +19,7 @@ Simple example
     });
 
     // then later on...
-    E.emit(obj, 'refresh', data)
+    E.emit(obj, 'refresh', data);
 
 If the object in question is a jQuery wrapped DOM element, a Backbone model, or a raw DOM element, event handling will delegate properly to their respective methods for event handling.
 
