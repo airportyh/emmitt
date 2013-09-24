@@ -4,7 +4,7 @@ Emmitt is a small Javascript library that can emit events on any Javascript obje
 
 1. Plain Javascript objects (POJOs)
 2. jQuery wraped DOM elements
-3. Backbone models or objects extended with Backbone.Event
+3. Backbone models or objects extended with Backbone.Events
 4. Raw DOM elements
 
 ## Install
