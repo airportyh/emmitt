@@ -1,0 +1,17 @@
+{
+  "name": "emmitt",
+  "version": "0.0.0",
+  "description": "Event emmiter for any object.",
+  "main": "index.js",
+  "dependencies": {
+    "bodydouble": "~0.1.2",
+    "chai": "~1.8.0",
+    "ispy": "~0.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha -u tdd tests.js"
+  },
+  "author": "Toby Ho",
+  "license": "MIT"
+}
