@@ -23,6 +23,7 @@ function worksWith(Object){
       t.assert(oncall.called, 'how come you didnt call?')
       t.equal(oncall.callCount, 1)
       t.deepEqual(oncall.lastCall.args, [1, 'hello'])
+      t.equal(oncall.lastCall.context, obj)
       t.end()
     })
 

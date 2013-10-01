@@ -174,7 +174,7 @@ function emit(obj, evt){
   handlers = handlers[evt] || []
   for (var i = 0; i < handlers.length; i++){
     var callback = handlers[i]
-    callback.apply(null, args)
+    callback.apply(obj, args)
   }
 }
 
