@@ -1,6 +1,6 @@
 {
   "name": "emmitt",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Event emmiter for everything.",
   "main": "index.js",
   "dependencies": {
