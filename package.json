@@ -4,13 +4,13 @@
   "description": "Event emmiter for everything.",
   "main": "index.js",
   "dependencies": {
-    "bodydouble": "~0.1.2",
-    "chai": "~1.8.0",
-    "ispy": "~0.1.2"
   },
   "devDependencies": {
     "backbone": "~1.0.0",
-    "tape": "~1.1.1"
+    "tape": "~1.1.1",
+    "bodydouble": "~0.1.2",
+    "chai": "~1.8.0",
+    "ispy": "~0.1.2"
   },
   "scripts": {
     "test": "node tests.js"
